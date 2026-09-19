@@ -58,17 +58,6 @@ parse_size() {
     esac
 }
 
-analyze_targets() {
-	local top="$1" csv="$2"; shift 2
-	local f i=0
-	for f in "$@"; do
-		i=$(( i + 1 ))
-		analyze_one "$f" "$TMP_DIR/facts.$i"
-		render_report "$f" "$TMP_DIR/facts.$i" "$top"
-	done
-	write_csv "$TMP_DIR/facts.$i" "$csv"
-}
-
 rotate_target() { printf 'TODO rotate: %s\n' "$*"; }
 
 AWK_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/awk"
@@ -233,5 +222,44 @@ render_auth() {
     	fact "$facts" AUTH | sort -t"$(printf '\t')" -k2,2nr \
       	| awk -F'\t' -v n="$top" 'NR <= n { printf "%-18s %9d %12d %12s %11s\n", $1, $2, $3, $4, $5 }'
 }
+
+# Log discovery additions
+discover_logs() {
+	local dir="$1"
+	find "$dir" -type f \( -name '*.log' -o -name '*.log.[0-9]*' \
+         -o -name 'syslog*' -o -name '*.gz' \) -print0 | sort -z
+}
+ #analyze targets updated
+analyze_targets() {
+    local top="$1" csv="$2"; shift 2
+    local -a sources=()
+    local t f i=0
+
+    for t in "$@"; do
+        if   [[ "$t" == "-" ]]; then sources+=("-")
+        elif [[ -d "$t"     ]]; then
+            while IFS= read -r -d '' f; do sources+=("$f"); done < <(discover_logs "$t")
+        elif [[ -f "$t"     ]]; then sources+=("$t")
+        else warn "skipping unreadable target: $t"
+        fi
+    done
+    (( ${#sources[@]} > 0 )) || die "no readable logs found"
+
+    for f in "${sources[@]}"; do
+        i=$(( i + 1 ))
+        analyze_one "$f" "$TMP_DIR/facts.$i"
+        render_report "$f" "$TMP_DIR/facts.$i" "$top"
+    done
+
+    if (( ${#sources[@]} > 1 )); then
+        for f in "${sources[@]}"; do emit_lines "$f"; done | sanitize \
+            | awk -f "$AWK_DIR/common.awk" -f "$AWK_DIR/analyze.awk" > "$TMP_DIR/facts.all"
+        render_report "ALL FILES (${#sources[@]})" "$TMP_DIR/facts.all" "$top"
+        write_csv "$TMP_DIR/facts.all" "$csv"
+    else
+        write_csv "$TMP_DIR/facts.1" "$csv"
+    fi
+}
+
 
 main "$@"
