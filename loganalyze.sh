@@ -58,8 +58,19 @@ parse_size() {
     esac
 }
 
-analyze_targets() { printf 'TODO analyze: %s\n' "$*"; }
+analyze_targets() {
+	local top="$1" csv="$2"; shift 2
+	local f i=0
+	for f in "$@"; do
+		i=$(( i + 1 ))
+		analyze_one "$f" "$TMP_DIR/facts.$i"
+		render_header "$f" "$TMP_DIR/facts.$i"
+	done
+}
+
 rotate_target() { printf 'TODO rotate: %s\n' "$*"; }
+
+AWK_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/awk"
 
 main() {
     local top=5 csv="log_report.csv"
@@ -102,5 +113,50 @@ main() {
         analyze_targets "$top" "$csv" "${targets[@]}"
     fi
 }
+
+
+# place that knows about compression: - means stdin
+# *.gz get decompressed, everything else is just read
+# cat -- "$f" survives a file named -dashfile.log
+emit_lines() {
+	local src= "$1"
+	if [[ "$src" == "-" ]]; then cat
+	elif [[ "$src" == *.gz ]]; then gzip -cd -- "$src"
+	else	cat -- "$src"
+	fi
+}
+
+# strips NUL bytes so awk doesnt misbehave on binary junk
+sanitize() { LC_ALL=C tr -d '\000'; }
+
+analyze_one() {
+	local src="$1" facts = "$2"
+	emit_lines "src" | sanitize \
+		| awk -f "$AWK_DIR/common.awk" -f "$AWK_DIR/analyze.awk" > "$facts"
+}
+
+# how bash will read the facts file back
+fact() {
+	local facts="$1" type="$2"
+	awk -F'\t' -v t="$type" '$1 == t { sub(/^[^\t]*\t/, ""); print }' "$facts"
+}
+
+meta() {
+    local facts="$1" key="$2"
+    awk -F'\t' -v k="$key" '$1 == "META" && $2 == k { print $3; exit }' "$facts"
+}
+
+
+# since bash only have integers, percentage in render_header is computed by a one shot awk BEGIN block
+render_header() {
+    local label="$1" facts="$2" total parsed unparsed pct
+    total="$(meta "$facts" total)"; parsed="$(meta "$facts" parsed)"
+    unparsed="$(meta "$facts" unparsed)"
+    pct="$(awk -v p="$parsed" -v t="$total" 'BEGIN { printf "%.1f", (t > 0) ? 100 * p / t : 0 }')"
+    printf '\n=== Log Analysis: %s  (%s lines, %s) ===\n' "$label" "$total" "$(date -Is)"
+    printf '\nParsed %s lines (%s%%)   Unparsed %s   Span: %s -> %s\n' \
+        "$parsed" "$pct" "$unparsed" "$(meta "$facts" first)" "$(meta "$facts" last)"
+}
+
 
 main "$@"
