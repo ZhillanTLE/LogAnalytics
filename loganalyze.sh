@@ -24,6 +24,8 @@ Rotation:
 	--apply		actually perform the actions
 
 	-h, --help	this text
+
+	--anomaly-k 	N flag hours N standrad deviations above the mean (default 2)
 USAGE
 }
 
@@ -67,6 +69,7 @@ main() {
     local t
 
     APPLY=0
+    ANOMALY_K=2
     AWK_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/awk"
 
     while (( $# > 0 )); do
@@ -79,6 +82,7 @@ main() {
             --copytruncate) copytruncate=1; shift ;;
             --max-size)     max_size="$(parse_size "${2:?}")"; shift 2 ;;
             --apply)        APPLY=1;        shift ;;
+	    --anomaly-k)    ANOMALY_K="${2:?--anomaly-k needs a number}"; shift 2;;
             -h|--help)      usage; return 0 ;;
             --)             shift; targets+=("$@"); break ;;
             -)              targets+=("-");  shift ;;
@@ -208,6 +212,7 @@ render_report() {
 #    render_auth         "$facts" "$top"
     render_histogram    "$facts"
     detect_burst        "$facts"
+    detect_anomalies	"$facts" "$ANOMALY_K"
 }
 
 
@@ -383,5 +388,35 @@ warn_if_open() {
     done < <(holders_of "$log")
 }
 
+# Zhillan's addition for number 9: Anomaly scoring 
+detect_anomalies() {
+    local facts="$1" k="${2:-2}"
+    fact "$facts" HOUR | awk -F'\t' -v k="$k" '
+        { e[$1] = $2; if ($3 > 0) { active++; sum += $2; sumsq += $2 * $2 } }
+        END {
+            if (active < 2) exit
+            mean = sum / active
+            var  = sumsq / active - mean * mean
+            if (var < 0) var = 0
+            sd = sqrt(var)
+            if (sd == 0) {
+                printf "\nAnomaly scoring: every active hour has %d errors; no variation to score.\n", mean
+                exit
+            }
+            printf "\n=== Anomaly scoring (k = %.1f standard deviations) ===\n", k
+            printf "mean %.1f   sd %.1f   threshold %.1f errors\n", mean, sd, mean + k * sd
+            found = 0
+            for (h = 0; h < 24; h++) {
+                hh = sprintf("%02d", h)
+                if (!(hh in e)) continue
+                z = (e[hh] - mean) / sd
+                if (z >= k) {
+                    printf "  %s:00  %6d errors   z = %+.2f\n", hh, e[hh], z
+                    found++
+                }
+            }
+            if (found == 0) printf "  no hour exceeds %.1f sd above the mean\n", k
+        }'
+}
 
 main "$@"

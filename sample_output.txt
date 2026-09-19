@@ -1,5 +1,5 @@
 
-=== Log Analysis: /tmp/logs/auth.log  (543 lines, 2026-09-19T20:35:04+07:00) ===
+=== Log Analysis: /tmp/logs/auth.log  (543 lines, 2026-09-19T22:12:09+07:00) ===
 
 Parsed 537 lines (98.9%)   Unparsed 6   Span: Sep 19 00:02 -> Sep 19 23:13
 
@@ -42,4 +42,323 @@ CRON                    0      138        0.0%
 
 BURST DETECTED  03:00-04:00, 341 errors, 23x average.
 
+=== Log Analysis: /tmp/logs/bad.log  (29 lines, 2026-09-19T22:12:09+07:00) ===
+
+Parsed 0 lines (0.0%)   Unparsed 29   Span: - -> -
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              0    0.0%  
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+
+=== Hourly distribution (errors) ===
+
+=== Log Analysis: /tmp/logs/-dashfile.log  (0 lines, 2026-09-19T22:12:09+07:00) ===
+
+Parsed 0 lines (0.0%)   Unparsed 0   Span: - -> -
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              0    0.0%  
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+
+=== Hourly distribution (errors) ===
+
+=== Log Analysis: /tmp/logs/empty.log  (0 lines, 2026-09-19T22:12:09+07:00) ===
+
+Parsed 0 lines (0.0%)   Unparsed 0   Span: - -> -
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              0    0.0%  
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+
+=== Hourly distribution (errors) ===
+
+=== Log Analysis: /tmp/logs/myapp/app.log  (1 lines, 2026-09-19T22:12:09+07:00) ===
+
+Parsed 1 lines (100.0%)   Unparsed 0   Span: Sep 5 01:00 -> Sep 5 01:00
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              1  100.0%  ##################################################
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+myapp                   0        1        0.0%
+
+=== Hourly distribution (errors) ===
+01 |                         0
+
+=== Log Analysis: /tmp/logs/myapp/app.log.1  (1 lines, 2026-09-19T22:12:09+07:00) ===
+
+Parsed 0 lines (0.0%)   Unparsed 1   Span: - -> -
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              0    0.0%  
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+
+=== Hourly distribution (errors) ===
+
+=== Log Analysis: /tmp/logs/myapp/app.log.2  (1 lines, 2026-09-19T22:12:09+07:00) ===
+
+Parsed 0 lines (0.0%)   Unparsed 1   Span: - -> -
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              0    0.0%  
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+
+=== Hourly distribution (errors) ===
+
+=== Log Analysis: /tmp/logs/myapp/app.log.3.gz  (1 lines, 2026-09-19T22:12:09+07:00) ===
+
+Parsed 0 lines (0.0%)   Unparsed 1   Span: - -> -
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              0    0.0%  
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+
+=== Hourly distribution (errors) ===
+
+=== Log Analysis: /tmp/logs/myapp/app.log.4.gz  (1 lines, 2026-09-19T22:12:09+07:00) ===
+
+Parsed 0 lines (0.0%)   Unparsed 1   Span: - -> -
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              0    0.0%  
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+
+=== Hourly distribution (errors) ===
+
+=== Log Analysis: /tmp/logs/myapp/app.log.5.gz  (1 lines, 2026-09-19T22:12:10+07:00) ===
+
+Parsed 0 lines (0.0%)   Unparsed 1   Span: - -> -
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              0    0.0%  
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+
+=== Hourly distribution (errors) ===
+
+=== Log Analysis: /tmp/logs/nonl.log  (1 lines, 2026-09-19T22:12:10+07:00) ===
+
+Parsed 1 lines (100.0%)   Unparsed 0   Span: Sep 5 01:02 -> Sep 5 01:02
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              1  100.0%  ##################################################
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+prog                    0        1        0.0%
+
+=== Hourly distribution (errors) ===
+01 |                         0
+
+=== Log Analysis: /tmp/logs/syslog  (193 lines, 2026-09-19T22:12:10+07:00) ===
+
+Parsed 193 lines (100.0%)   Unparsed 0   Span: Sep 19 00:02 -> Sep 19 04:10
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          3    1.6%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO            190   98.4%  #################################################
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+kernel                  3        3      100.0%
+CRON                    0      138        0.0%
+sshd                    0       46        0.0%
+systemd                 0        6        0.0%
+
+=== Hourly distribution (errors) ===
+00 |                         0
+01 |                         0
+02 |                         0
+04 |######################## 2
+05 |                         0
+06 |                         0
+07 |                         0
+08 |                         0
+09 |                         0
+10 |                         0
+11 |                         0
+12 |                         0
+13 |                         0
+14 |                         0
+15 |                         0
+16 |                         0
+17 |############             1
+18 |                         0
+19 |                         0
+20 |                         0
+21 |                         0
+22 |                         0
+23 |                         0
+
+=== Log Analysis: /tmp/logs/syslog.gz  (193 lines, 2026-09-19T22:12:10+07:00) ===
+
+Parsed 193 lines (100.0%)   Unparsed 0   Span: Sep 19 00:02 -> Sep 19 04:10
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          3    1.6%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO            190   98.4%  #################################################
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+kernel                  3        3      100.0%
+CRON                    0      138        0.0%
+sshd                    0       46        0.0%
+systemd                 0        6        0.0%
+
+=== Hourly distribution (errors) ===
+00 |                         0
+01 |                         0
+02 |                         0
+04 |######################## 2
+05 |                         0
+06 |                         0
+07 |                         0
+08 |                         0
+09 |                         0
+10 |                         0
+11 |                         0
+12 |                         0
+13 |                         0
+14 |                         0
+15 |                         0
+16 |                         0
+17 |############             1
+18 |                         0
+19 |                         0
+20 |                         0
+21 |                         0
+22 |                         0
+23 |                         0
+
+=== Log Analysis: /tmp/logs/weird dir/my log.log  (1 lines, 2026-09-19T22:12:10+07:00) ===
+
+Parsed 1 lines (100.0%)   Unparsed 0   Span: Sep 5 01:02 -> Sep 5 01:02
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR             0    0.0%  
+WARNING           0    0.0%  
+INFO              1  100.0%  ##################################################
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+prog                    0        1        0.0%
+
+=== Hourly distribution (errors) ===
+01 |                         0
+
+=== Log Analysis: ALL FILES (14)  (964 lines, 2026-09-19T22:12:10+07:00) ===
+
+Parsed 924 lines (95.9%)   Unparsed 40   Span: Sep 19 00:02 -> Sep 5 01:02
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          6    0.6%  
+ERROR           353   38.2%  ###################
+WARNING           0    0.0%  
+INFO            565   61.1%  ##############################
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+sshd                  353      491       71.9%
+kernel                  6        6      100.0%
+CRON                    0      413        0.0%
+prog                    0        2        0.0%
+systemd                 0       12        0.0%
+
+=== Hourly distribution (errors) ===
+00 |                         0
+01 |                         0
+02 |                         0
+03 |######################## 341   <-- BURST: 23x the hourly average of 15.0
+04 |#                        4
+05 |                         0
+06 |                         0
+07 |                         0
+08 |                         0
+09 |                         0
+10 |                         0
+11 |                         0
+12 |                         0
+13 |                         0
+14 |                         0
+15 |                         0
+16 |                         0
+17 |#                        2
+18 |                         0
+19 |                         0
+20 |                         0
+21 |                         0
+22 |#                        12
+23 |                         0
+
+BURST DETECTED  03:00-04:00, 341 errors, 23x average.
+
 CSV written to log_report.csv
+
+=== Rotation plan for /tmp/logs/myapp (DRY RUN) ===
+  WARNING: app.log is held open by pid 136024 (tail).
+           After rotation it will keep writing to the RENAMED file, and the
+           new app.log will stay empty until the process reopens it.
+           Send SIGHUP after rotating, or use --copytruncate.
+  WARNING: app.log is held open by pid 141364 (tail).
+           After rotation it will keep writing to the RENAMED file, and the
+           new app.log will stay empty until the process reopens it.
+           Send SIGHUP after rotating, or use --copytruncate.
+  would rm      app.log.5.gz  (beyond --keep 4)
+  would rm      app.log.4.gz  (beyond --keep 4)
+  would mv      app.log.3.gz  ->  app.log.4.gz
+  would mv      app.log.2  ->  app.log.3
+  would gzip    app.log.1  ->  app.log.2.gz
+  would mv      app.log  ->  app.log.1
+  would create  app.log (mode 640, owner kali:kali)
+  (nothing was changed. re-run with --apply to act)
