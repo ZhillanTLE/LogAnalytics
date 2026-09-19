@@ -64,8 +64,9 @@ analyze_targets() {
 	for f in "$@"; do
 		i=$(( i + 1 ))
 		analyze_one "$f" "$TMP_DIR/facts.$i"
-		render_header "$f" "$TMP_DIR/facts.$i"
+		render_report "$f" "$TMP_DIR/facts.$i" "$top"
 	done
+	write_csv "$TMP_DIR/facts.$i" "$csv"
 }
 
 rotate_target() { printf 'TODO rotate: %s\n' "$*"; }
@@ -119,7 +120,7 @@ main() {
 # *.gz get decompressed, everything else is just read
 # cat -- "$f" survives a file named -dashfile.log
 emit_lines() {
-	local src= "$1"
+	local src="$1"
 	if [[ "$src" == "-" ]]; then cat
 	elif [[ "$src" == *.gz ]]; then gzip -cd -- "$src"
 	else	cat -- "$src"
@@ -130,8 +131,8 @@ emit_lines() {
 sanitize() { LC_ALL=C tr -d '\000'; }
 
 analyze_one() {
-	local src="$1" facts = "$2"
-	emit_lines "src" | sanitize \
+	local src="$1" facts="$2"
+	emit_lines "$src" | sanitize \
 		| awk -f "$AWK_DIR/common.awk" -f "$AWK_DIR/analyze.awk" > "$facts"
 }
 
@@ -158,5 +159,68 @@ render_header() {
         "$parsed" "$pct" "$unparsed" "$(meta "$facts" first)" "$(meta "$facts" last)"
 }
 
+
+render_severity() {
+    local facts="$1" total
+    total="$(meta "$facts" parsed)"
+    printf '\n%-10s %8s %7s  %s\n' "SEVERITY" "COUNT" "SHARE" "BAR"
+    fact "$facts" SEV | awk -F'\t' -v total="${total:-0}" \
+        -f "$AWK_DIR/common.awk" -f "$AWK_DIR/severity.awk"
+}
+
+render_top_programs() {
+    local facts="$1" top="$2"
+    printf '\n=== Top %s programs by error count ===\n' "$top"
+    printf '%-16s %8s %8s %11s\n' "PROGRAM" "ERRORS" "TOTAL" "ERROR RATE"
+    fact "$facts" PROG | sort -t"$(printf '\t')" -k3,3nr \
+      | awk -F'\t' -v n="$top" 'NR <= n {
+            rate = ($2 > 0) ? 100 * $3 / $2 : 0
+            printf "%-16s %8d %8d %10.1f%%\n", $1, $3, $2, rate
+        }'
+}
+
+render_histogram() {
+    local facts="$1"
+    printf '\n=== Hourly distribution (errors) ===\n'
+    fact "$facts" HOUR \
+        | awk -F'\t' -f "$AWK_DIR/common.awk" -f "$AWK_DIR/histogram.awk"
+}
+
+detect_burst() {
+    local facts="$1"
+    fact "$facts" HOUR | awk -F'\t' '
+        { e[$1] = $2; if ($3 > 0) { active++; sum += $2 } }
+        END {
+            if (active == 0) exit
+            avg = sum / active
+            for (h in e) if (e[h] > peak) { peak = e[h]; ph = h }
+            if (avg > 0 && peak > 10 && peak / avg >= 3)
+                printf "\nBURST DETECTED  %s:00-%02d:00, %d errors, %.0fx average.\n", ph, (ph + 1) % 24, peak, peak / avg
+        }'
+}
+
+write_csv() {
+    local facts="$1" out="$2"
+    awk -F'\t' 'BEGIN { print "metric,key,subkey,value" }
+        function q(s) { if (s ~ /[",]/) { gsub(/"/, "\"\"", s); return "\"" s "\"" } return s }
+        $1 == "SEV"  { print "severity," q($2) ",," $3 }
+        $1 == "PROG" { print "program,"  q($2) ",total," $3; print "program," q($2) ",errors," $4 }
+        $1 == "HOUR" { print "hour,"     q($2) ",errors," $3; print "hour," q($2) ",lines," $4 }
+        $1 == "AUTH" { print "auth_ip,"  q($2) ",attempts," $3; print "auth_ip," q($2) ",distinct_users," $4 }
+        $1 == "OOM"  { print "oom,"      q($2) ",," $3 }
+        $1 == "SVC"  { print "service,"  q($3) "," q($2) "," $4 }
+    ' "$facts" > "$out"
+    printf '\nCSV written to %s\n' "$out"
+}
+
+render_report() {
+    local label="$1" facts="$2" top="$3"
+    render_header       "$label" "$facts"
+    render_severity     "$facts"
+    render_top_programs "$facts" "$top"
+#    render_auth         "$facts" "$top"
+    render_histogram    "$facts"
+    detect_burst        "$facts"
+}
 
 main "$@"

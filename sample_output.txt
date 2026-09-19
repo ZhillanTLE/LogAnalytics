@@ -1,0 +1,45 @@
+
+=== Log Analysis: /tmp/logs/auth.log  (543 lines, 2026-09-19T20:35:04+07:00) ===
+
+Parsed 537 lines (98.9%)   Unparsed 6   Span: Sep 19 00:02 -> Sep 19 23:13
+
+SEVERITY      COUNT   SHARE  BAR
+CRITICAL          0    0.0%  
+ERROR           353   65.7%  ################################
+WARNING           0    0.0%  
+INFO            184   34.3%  #################
+
+=== Top 5 programs by error count ===
+PROGRAM            ERRORS    TOTAL  ERROR RATE
+sshd                  353      399       88.5%
+CRON                    0      138        0.0%
+
+=== Hourly distribution (errors) ===
+00 |                         0
+01 |                         0
+02 |                         0
+03 |######################## 341   <-- BURST: 23x the hourly average of 14.7
+04 |                         0
+05 |                         0
+06 |                         0
+07 |                         0
+08 |                         0
+09 |                         0
+10 |                         0
+11 |                         0
+12 |                         0
+13 |                         0
+14 |                         0
+15 |                         0
+16 |                         0
+17 |                         0
+18 |                         0
+19 |                         0
+20 |                         0
+21 |                         0
+22 |#                        12
+23 |                         0
+
+BURST DETECTED  03:00-04:00, 341 errors, 23x average.
+
+CSV written to log_report.csv
