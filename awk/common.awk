@@ -23,4 +23,25 @@ function severity(m , l) {
    	 return "INFO"
 }
 
+function auth_ip(m, n, w, i){
+	n = split(m, w, " ")
+	for (i = 1; i <= n; i++) {
+		if (w[i] == "from" && w[i+1] ~ /^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/) return w[i+1]
+		if (w[i] ~ /^rhost=[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$/) return substr(w[i], 7)
+	}
+	return ""
+}
+
+function auth_user(m, n, w, i){
+	n = split(m, w, " ")
+	for (i = 1; i <= n; i++){
+		if (w[i] == "for") {
+			if (w[i+1] == "invalid" && w[i+2] == "user") return w[i+3]
+			return w[i+1]
+		}
+		if (w[i] ~ /^user=/) return substr(w[i], 6)
+	}
+	return "?"
+}
+
 

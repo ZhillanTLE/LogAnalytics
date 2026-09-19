@@ -223,4 +223,15 @@ render_report() {
     detect_burst        "$facts"
 }
 
+
+# Pattern extraction additions
+render_auth() {
+	local facts="$1" top="$2"
+	if [[ ! -s "$facts" ]] || ! fact "$facts" AUTH | grep -q . ; then return 0; fi
+    	printf '\n=== Failed authentication by source IP ===\n'
+    	printf '%-18s %9s %12s %12s %11s\n' "IP" "ATTEMPTS" "USERS TRIED" "FIRST SEEN" "LAST SEEN"
+    	fact "$facts" AUTH | sort -t"$(printf '\t')" -k2,2nr \
+      	| awk -F'\t' -v n="$top" 'NR <= n { printf "%-18s %9d %12d %12s %11s\n", $1, $2, $3, $4, $5 }'
+}
+
 main "$@"
