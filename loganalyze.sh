@@ -262,4 +262,102 @@ analyze_targets() {
 }
 
 
+# Rotation additions
+
+assert_inside() {
+    local root="$1" path="$2" rroot rpath
+    rroot="$(realpath -- "$root")"  || die "cannot resolve $root"
+    rpath="$(realpath -m -- "$path")" || die "cannot resolve $path"
+    [[ "$rpath" == "$rroot" || "$rpath" == "$rroot"/* ]] \
+        || die "refusing to touch '$path': outside '$root'"
+}
+
+gzip_to() { gzip -c -- "$1" > "$2" && rm -f -- "$1"; }
+
+act() {
+    local desc="$1"; shift
+    [[ "${1:-}" == "--" ]] && shift
+    if (( APPLY )); then
+        printf '  %s\n' "$desc"
+        "$@"
+    else
+        printf '  would %s\n' "$desc"
+    fi
+}
+
+rotate_one() {
+    local log="$1" keep="$2" compress="$3" copytrunc="$4" max_size="$5"
+    local dir base mode owner size i src dst
+
+    dir="${log%/*}"; base="${log##*/}"
+    [[ -f "$log" ]] || { warn "not a regular file: $log"; return 0; }
+
+    size="$(stat -c '%s' -- "$log")"
+    if (( max_size > 0 && size < max_size )); then
+        printf '  skip %s (%s bytes, below --max-size %s)\n' "$base" "$size" "$max_size"
+        return 0
+    fi
+
+    mode="$(stat -c '%a'    -- "$log")"
+    owner="$(stat -c '%U:%G' -- "$log")"
+#    warn_if_open "$log"
+
+    for i in $(seq "$(( keep + 3 ))" -1 "$keep"); do
+        for dst in "$dir/$base.$i" "$dir/$base.$i.gz"; do
+            [[ -e "$dst" ]] || continue
+            assert_inside "$dir" "$dst"
+            act "rm      ${dst##*/}  (beyond --keep $keep)" -- rm -f -- "$dst"
+        done
+    done
+
+    for (( i = keep - 1; i >= 2; i-- )); do
+        for src in "$dir/$base.$i" "$dir/$base.$i.gz"; do
+            [[ -e "$src" ]] || continue
+            dst="${src%.gz}"; dst="${dst%.$i}.$(( i + 1 ))"
+            [[ "$src" == *.gz ]] && dst="$dst.gz"
+            assert_inside "$dir" "$dst"
+            act "mv      ${src##*/}  ->  ${dst##*/}" -- mv -- "$src" "$dst"
+        done
+    done
+
+    if [[ -e "$dir/$base.1" ]]; then
+        if (( compress )); then
+            assert_inside "$dir" "$dir/$base.2.gz"
+            act "gzip    $base.1  ->  $base.2.gz" -- gzip_to "$dir/$base.1" "$dir/$base.2.gz"
+        else
+            assert_inside "$dir" "$dir/$base.2"
+            act "mv      $base.1  ->  $base.2" -- mv -- "$dir/$base.1" "$dir/$base.2"
+        fi
+    fi
+
+    assert_inside "$dir" "$dir/$base.1"
+    if (( copytrunc )); then
+        act "cp      $base  ->  $base.1 (inode preserved)" -- cp -p -- "$log" "$dir/$base.1"
+        act "trunc   $base (in place, same inode)"         -- truncate -s 0 -- "$log"
+    else
+        act "mv      $base  ->  $base.1"                   -- mv -- "$log" "$dir/$base.1"
+        act "create  $base (mode $mode, owner $owner)"     -- install -m "$mode" /dev/null "$log"
+    fi
+}
+
+rotate_target() {
+    local target="$1" keep="$2" compress="$3" copytrunc="$4" max_size="$5"
+    local f
+    if (( APPLY )); then
+        printf '\n=== Rotation for %s (APPLYING) ===\n' "$target"
+    else
+        printf '\n=== Rotation plan for %s (DRY RUN) ===\n' "$target"
+    fi
+    if [[ -d "$target" ]]; then
+        while IFS= read -r -d '' f; do
+            rotate_one "$f" "$keep" "$compress" "$copytrunc" "$max_size"
+        done < <(find "$target" -maxdepth 1 -type f -name '*.log' -print0 | sort -z)
+    elif [[ -f "$target" ]]; then
+        rotate_one "$target" "$keep" "$compress" "$copytrunc" "$max_size"
+    else
+        die "no such file or directory: $target"
+    fi
+    (( APPLY )) || printf '  (nothing was changed. re-run with --apply to act)\n'
+}
+
 main "$@"
