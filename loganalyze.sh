@@ -205,14 +205,15 @@ write_csv() {
 }
 
 render_report() {
-    local label="$1" facts="$2" top="$3"
-    render_header       "$label" "$facts"
-    render_severity     "$facts"
-    render_top_programs "$facts" "$top"
-#    render_auth         "$facts" "$top"
-    render_histogram    "$facts"
-    detect_burst        "$facts"
-    detect_anomalies	"$facts" "$ANOMALY_K"
+    local label="$1" facts="$2" top="$3" bytes="${4:-0}" dir="${5:-}"
+    render_header        "$label" "$facts"
+    render_severity      "$facts"
+    render_top_programs  "$facts" "$top"
+#    render_auth          "$facts" "$top"
+    render_histogram     "$facts"
+    detect_burst         "$facts"
+    detect_anomalies	  "$facts" "$ANOMALY_K"
+    project_disk_growth  "$facts" "$bytes" "$dir"
 }
 
 
@@ -236,7 +237,7 @@ discover_logs() {
 analyze_targets() {
     local top="$1" csv="$2"; shift 2
     local -a sources=()
-    local t f i=0
+    local t f i=0 bytes dir
 
     for t in "$@"; do
         if   [[ "$t" == "-" ]]; then sources+=("-")
@@ -251,13 +252,27 @@ analyze_targets() {
     for f in "${sources[@]}"; do
         i=$(( i + 1 ))
         analyze_one "$f" "$TMP_DIR/facts.$i"
-        render_report "$f" "$TMP_DIR/facts.$i" "$top"
+        if [[ "$f" == "-" ]]; then
+            bytes=0; dir=""
+        else
+            bytes="$(stat -c '%s' -- "$f" 2>/dev/null || printf '0')"
+            dir="$(dirname -- "$f")"
+        fi
+        render_report "$f" "$TMP_DIR/facts.$i" "$top" "$bytes" "$dir"
     done
 
     if (( ${#sources[@]} > 1 )); then
         for f in "${sources[@]}"; do emit_lines "$f"; done | sanitize \
             | awk -f "$AWK_DIR/common.awk" -f "$AWK_DIR/analyze.awk" > "$TMP_DIR/facts.all"
-        render_report "ALL FILES (${#sources[@]})" "$TMP_DIR/facts.all" "$top"
+
+        local total_bytes=0 combined_dir=""
+        for f in "${sources[@]}"; do
+            [[ "$f" == "-" ]] && continue
+            total_bytes=$(( total_bytes + $(stat -c '%s' -- "$f" 2>/dev/null || printf '0') ))
+            [[ -z "$combined_dir" ]] && combined_dir="$(dirname -- "$f")"
+        done
+
+        render_report "ALL FILES (${#sources[@]})" "$TMP_DIR/facts.all" "$top" "$total_bytes" "$combined_dir"
         write_csv "$TMP_DIR/facts.all" "$csv"
     else
         write_csv "$TMP_DIR/facts.1" "$csv"
@@ -417,6 +432,78 @@ detect_anomalies() {
             }
             if (found == 0) printf "  no hour exceeds %.1f sd above the mean\n", k
         }'
+}
+
+# Razzy's addition for number 9: Disk-space projection
+#
+# Takes the size (in bytes) of the source(s) just analysed and the span the
+# log itself covers (META first/last from the facts file), turns that into a
+# bytes-per-hour growth rate, and projects it against the real free space on
+# the filesystem that holds the log ("at this rate, /var/log fills in N days").
+#
+# Assumption (same spirit as the first-seen/last-seen note above): syslog
+# timestamps have no year, so if "last" parses to before "first" we assume the
+# span crossed a New Year and add one year to "last". Documented here and in
+# explanation.md rather than silently guessed.
+project_disk_growth() {
+    local facts="$1" bytes="${2:-0}" dir="${3:-}"
+    local first last first_s last_s span_h rate avail hours days eta
+
+    if (( bytes <= 0 )); then
+        printf '\nDisk-space projection: source has no bytes to project from (empty file or stdin), skipping.\n'
+        return 0
+    fi
+
+    first="$(meta "$facts" first)"
+    last="$(meta "$facts" last)"
+    if [[ -z "$first" || "$first" == "-" || -z "$last" || "$last" == "-" ]]; then
+        printf '\nDisk-space projection: not enough parsed lines to establish a time span.\n'
+        return 0
+    fi
+
+    first_s="$(date -d "$first" +%s 2>/dev/null)" || {
+        printf '\nDisk-space projection: could not parse "%s" as a timestamp.\n' "$first"
+        return 0
+    }
+    last_s="$(date -d "$last" +%s 2>/dev/null)" || {
+        printf '\nDisk-space projection: could not parse "%s" as a timestamp.\n' "$last"
+        return 0
+    }
+
+    if (( last_s < first_s )); then
+        last_s="$(date -d "$last +1 year" +%s 2>/dev/null || printf '%s' "$last_s")"
+    fi
+
+    span_h=$(( (last_s - first_s) / 3600 ))
+    (( span_h < 1 )) && span_h=1   # short-lived log still gets a rough rate instead of a divide-by-zero
+
+    rate="$(awk -v b="$bytes" -v h="$span_h" 'BEGIN { printf "%.1f", b / h }')"
+
+    if [[ -z "$dir" || ! -d "$dir" ]]; then
+        printf '\nDisk-space projection: growth rate %s bytes/hour (%s bytes over %sh). No directory to check free space against.\n' \
+            "$rate" "$bytes" "$span_h"
+        return 0
+    fi
+
+    avail="$(df --output=avail -B1 -- "$dir" 2>/dev/null | awk 'NR==2 { print $1 }')"
+    if [[ ! "$avail" =~ ^[0-9]+$ ]]; then
+        printf '\nDisk-space projection: growth rate %s bytes/hour, but could not read free space on %s.\n' "$rate" "$dir"
+        return 0
+    fi
+
+    printf '\n=== Disk-space projection ===\n'
+    printf 'Growth rate : %s bytes/hour  (%s bytes over a %sh span)\n' "$rate" "$bytes" "$span_h"
+    printf 'Free space  : %s bytes free on %s\n' "$avail" "$dir"
+
+    if awk -v r="$rate" 'BEGIN { exit !(r <= 0) }'; then
+        printf 'At this rate the volume never fills (measured growth rate is zero).\n'
+        return 0
+    fi
+
+    hours="$(awk -v a="$avail" -v r="$rate" 'BEGIN { printf "%.1f", a / r }')"
+    days="$(awk -v h="$hours" 'BEGIN { printf "%.1f", h / 24 }')"
+    eta="$(date -d "+${hours%.*} hours" +'%Y-%m-%d %H:%M' 2>/dev/null || printf 'unknown')"
+    printf 'Projection  : %s fills in %s days (~%s), at the observed rate.\n' "$dir" "$days" "$eta"
 }
 
 main "$@"

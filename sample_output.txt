@@ -1,5 +1,5 @@
 
-=== Log Analysis: /tmp/logs/auth.log  (543 lines, 2026-09-19T22:12:09+07:00) ===
+=== Log Analysis: /tmp/logs/auth.log  (543 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 537 lines (98.9%)   Unparsed 6   Span: Sep 19 00:02 -> Sep 19 23:13
 
@@ -42,9 +42,18 @@ CRON                    0      138        0.0%
 
 BURST DETECTED  03:00-04:00, 341 errors, 23x average.
 
-=== Log Analysis: /tmp/logs/bad.log  (29 lines, 2026-09-19T22:12:09+07:00) ===
+=== Anomaly scoring (k = 2.0 standard deviations) ===
+mean 14.7   sd 68.1   threshold 150.9 errors
+  03:00     341 errors   z = +4.79
 
-Parsed 0 lines (0.0%)   Unparsed 29   Span: - -> -
+=== Disk-space projection ===
+Growth rate : 2386.0 bytes/hour  (54877 bytes over a 23h span)
+Free space  : 10720030720 bytes free on /tmp/logs
+Projection  : /tmp/logs fills in 187203.7 days (~2539-04-07 08:17), at the observed rate.
+
+=== Log Analysis: /tmp/logs/bad.log  (15 lines, 2026-09-19T16:17:33+00:00) ===
+
+Parsed 0 lines (0.0%)   Unparsed 15   Span: - -> -
 
 SEVERITY      COUNT   SHARE  BAR
 CRITICAL          0    0.0%  
@@ -57,7 +66,9 @@ PROGRAM            ERRORS    TOTAL  ERROR RATE
 
 === Hourly distribution (errors) ===
 
-=== Log Analysis: /tmp/logs/-dashfile.log  (0 lines, 2026-09-19T22:12:09+07:00) ===
+Disk-space projection: not enough parsed lines to establish a time span.
+
+=== Log Analysis: /tmp/logs/empty.log  (0 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 0 lines (0.0%)   Unparsed 0   Span: - -> -
 
@@ -72,22 +83,9 @@ PROGRAM            ERRORS    TOTAL  ERROR RATE
 
 === Hourly distribution (errors) ===
 
-=== Log Analysis: /tmp/logs/empty.log  (0 lines, 2026-09-19T22:12:09+07:00) ===
+Disk-space projection: source has no bytes to project from (empty file or stdin), skipping.
 
-Parsed 0 lines (0.0%)   Unparsed 0   Span: - -> -
-
-SEVERITY      COUNT   SHARE  BAR
-CRITICAL          0    0.0%  
-ERROR             0    0.0%  
-WARNING           0    0.0%  
-INFO              0    0.0%  
-
-=== Top 5 programs by error count ===
-PROGRAM            ERRORS    TOTAL  ERROR RATE
-
-=== Hourly distribution (errors) ===
-
-=== Log Analysis: /tmp/logs/myapp/app.log  (1 lines, 2026-09-19T22:12:09+07:00) ===
+=== Log Analysis: /tmp/logs/myapp/app.log  (1 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 1 lines (100.0%)   Unparsed 0   Span: Sep 5 01:00 -> Sep 5 01:00
 
@@ -104,7 +102,12 @@ myapp                   0        1        0.0%
 === Hourly distribution (errors) ===
 01 |                         0
 
-=== Log Analysis: /tmp/logs/myapp/app.log.1  (1 lines, 2026-09-19T22:12:09+07:00) ===
+=== Disk-space projection ===
+Growth rate : 48.0 bytes/hour  (48 bytes over a 1h span)
+Free space  : 10720018432 bytes free on /tmp/logs/myapp
+Projection  : /tmp/logs/myapp fills in 9305571.6 days (~27504-07-05 05:17), at the observed rate.
+
+=== Log Analysis: /tmp/logs/myapp/app.log.1  (1 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 0 lines (0.0%)   Unparsed 1   Span: - -> -
 
@@ -119,7 +122,9 @@ PROGRAM            ERRORS    TOTAL  ERROR RATE
 
 === Hourly distribution (errors) ===
 
-=== Log Analysis: /tmp/logs/myapp/app.log.2  (1 lines, 2026-09-19T22:12:09+07:00) ===
+Disk-space projection: not enough parsed lines to establish a time span.
+
+=== Log Analysis: /tmp/logs/myapp/app.log.2  (1 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 0 lines (0.0%)   Unparsed 1   Span: - -> -
 
@@ -134,7 +139,9 @@ PROGRAM            ERRORS    TOTAL  ERROR RATE
 
 === Hourly distribution (errors) ===
 
-=== Log Analysis: /tmp/logs/myapp/app.log.3.gz  (1 lines, 2026-09-19T22:12:09+07:00) ===
+Disk-space projection: not enough parsed lines to establish a time span.
+
+=== Log Analysis: /tmp/logs/myapp/app.log.3.gz  (1 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 0 lines (0.0%)   Unparsed 1   Span: - -> -
 
@@ -149,7 +156,9 @@ PROGRAM            ERRORS    TOTAL  ERROR RATE
 
 === Hourly distribution (errors) ===
 
-=== Log Analysis: /tmp/logs/myapp/app.log.4.gz  (1 lines, 2026-09-19T22:12:09+07:00) ===
+Disk-space projection: not enough parsed lines to establish a time span.
+
+=== Log Analysis: /tmp/logs/myapp/app.log.4.gz  (1 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 0 lines (0.0%)   Unparsed 1   Span: - -> -
 
@@ -164,7 +173,9 @@ PROGRAM            ERRORS    TOTAL  ERROR RATE
 
 === Hourly distribution (errors) ===
 
-=== Log Analysis: /tmp/logs/myapp/app.log.5.gz  (1 lines, 2026-09-19T22:12:10+07:00) ===
+Disk-space projection: not enough parsed lines to establish a time span.
+
+=== Log Analysis: /tmp/logs/myapp/app.log.5.gz  (1 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 0 lines (0.0%)   Unparsed 1   Span: - -> -
 
@@ -179,7 +190,9 @@ PROGRAM            ERRORS    TOTAL  ERROR RATE
 
 === Hourly distribution (errors) ===
 
-=== Log Analysis: /tmp/logs/nonl.log  (1 lines, 2026-09-19T22:12:10+07:00) ===
+Disk-space projection: not enough parsed lines to establish a time span.
+
+=== Log Analysis: /tmp/logs/nonl.log  (1 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 1 lines (100.0%)   Unparsed 0   Span: Sep 5 01:02 -> Sep 5 01:02
 
@@ -196,7 +209,12 @@ prog                    0        1        0.0%
 === Hourly distribution (errors) ===
 01 |                         0
 
-=== Log Analysis: /tmp/logs/syslog  (193 lines, 2026-09-19T22:12:10+07:00) ===
+=== Disk-space projection ===
+Growth rate : 61.0 bytes/hour  (61 bytes over a 1h span)
+Free space  : 10719989760 bytes free on /tmp/logs
+Projection  : /tmp/logs fills in 7322397.4 days (~22074-10-05 01:17), at the observed rate.
+
+=== Log Analysis: /tmp/logs/syslog  (193 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 193 lines (100.0%)   Unparsed 0   Span: Sep 19 00:02 -> Sep 19 04:10
 
@@ -238,7 +256,16 @@ systemd                 0        6        0.0%
 22 |                         0
 23 |                         0
 
-=== Log Analysis: /tmp/logs/syslog.gz  (193 lines, 2026-09-19T22:12:10+07:00) ===
+=== Anomaly scoring (k = 2.0 standard deviations) ===
+mean 0.1   sd 0.4   threshold 1.0 errors
+  04:00       2 errors   z = +4.18
+
+=== Disk-space projection ===
+Growth rate : 4460.2 bytes/hour  (17841 bytes over a 4h span)
+Free space  : 10719981568 bytes free on /tmp/logs
+Projection  : /tmp/logs fills in 100144.8 days (~2300-11-27 11:17), at the observed rate.
+
+=== Log Analysis: /tmp/logs/syslog.gz  (193 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 193 lines (100.0%)   Unparsed 0   Span: Sep 19 00:02 -> Sep 19 04:10
 
@@ -280,7 +307,16 @@ systemd                 0        6        0.0%
 22 |                         0
 23 |                         0
 
-=== Log Analysis: /tmp/logs/weird dir/my log.log  (1 lines, 2026-09-19T22:12:10+07:00) ===
+=== Anomaly scoring (k = 2.0 standard deviations) ===
+mean 0.1   sd 0.4   threshold 1.0 errors
+  04:00       2 errors   z = +4.18
+
+=== Disk-space projection ===
+Growth rate : 254.5 bytes/hour  (1018 bytes over a 4h span)
+Free space  : 10719977472 bytes free on /tmp/logs
+Projection  : /tmp/logs fills in 1755071.6 days (~6831-12-10 06:17), at the observed rate.
+
+=== Log Analysis: /tmp/logs/weird dir/my log.log  (1 lines, 2026-09-19T16:17:33+00:00) ===
 
 Parsed 1 lines (100.0%)   Unparsed 0   Span: Sep 5 01:02 -> Sep 5 01:02
 
@@ -297,9 +333,14 @@ prog                    0        1        0.0%
 === Hourly distribution (errors) ===
 01 |                         0
 
-=== Log Analysis: ALL FILES (14)  (964 lines, 2026-09-19T22:12:10+07:00) ===
+=== Disk-space projection ===
+Growth rate : 61.0 bytes/hour  (61 bytes over a 1h span)
+Free space  : 10719973376 bytes free on /tmp/logs/weird dir
+Projection  : /tmp/logs/weird dir fills in 7322386.2 days (~22074-09-23 20:17), at the observed rate.
 
-Parsed 924 lines (95.9%)   Unparsed 40   Span: Sep 19 00:02 -> Sep 5 01:02
+=== Log Analysis: ALL FILES (13)  (950 lines, 2026-09-19T16:17:33+00:00) ===
+
+Parsed 924 lines (97.3%)   Unparsed 26   Span: Sep 19 00:02 -> Sep 5 01:02
 
 SEVERITY      COUNT   SHARE  BAR
 CRITICAL          6    0.6%  
@@ -343,22 +384,13 @@ systemd                 0       12        0.0%
 
 BURST DETECTED  03:00-04:00, 341 errors, 23x average.
 
-CSV written to log_report.csv
+=== Anomaly scoring (k = 2.0 standard deviations) ===
+mean 15.0   sd 68.0   threshold 151.0 errors
+  03:00     341 errors   z = +4.79
 
-=== Rotation plan for /tmp/logs/myapp (DRY RUN) ===
-  WARNING: app.log is held open by pid 136024 (tail).
-           After rotation it will keep writing to the RENAMED file, and the
-           new app.log will stay empty until the process reopens it.
-           Send SIGHUP after rotating, or use --copytruncate.
-  WARNING: app.log is held open by pid 141364 (tail).
-           After rotation it will keep writing to the RENAMED file, and the
-           new app.log will stay empty until the process reopens it.
-           Send SIGHUP after rotating, or use --copytruncate.
-  would rm      app.log.5.gz  (beyond --keep 4)
-  would rm      app.log.4.gz  (beyond --keep 4)
-  would mv      app.log.3.gz  ->  app.log.4.gz
-  would mv      app.log.2  ->  app.log.3
-  would gzip    app.log.1  ->  app.log.2.gz
-  would mv      app.log  ->  app.log.1
-  would create  app.log (mode 640, owner kali:kali)
-  (nothing was changed. re-run with --apply to act)
+=== Disk-space projection ===
+Growth rate : 9.3 bytes/hour  (78177 bytes over a 8424h span)
+Free space  : 10719965184 bytes free on /tmp/logs
+Projection  : /tmp/logs fills in 48028517.9 days (~133524-05-02 12:17), at the observed rate.
+
+CSV written to log_report.csv
