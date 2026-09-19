@@ -58,8 +58,6 @@ parse_size() {
     esac
 }
 
-rotate_target() { printf 'TODO rotate: %s\n' "$*"; }
-
 AWK_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/awk"
 
 main() {
@@ -300,7 +298,7 @@ rotate_one() {
 
     mode="$(stat -c '%a'    -- "$log")"
     owner="$(stat -c '%U:%G' -- "$log")"
-#    warn_if_open "$log"
+    warn_if_open "$log"
 
     for i in $(seq "$(( keep + 3 ))" -1 "$keep"); do
         for dst in "$dir/$base.$i" "$dir/$base.$i.gz"; do
@@ -313,7 +311,7 @@ rotate_one() {
     for (( i = keep - 1; i >= 2; i-- )); do
         for src in "$dir/$base.$i" "$dir/$base.$i.gz"; do
             [[ -e "$src" ]] || continue
-            dst="${src%.gz}"; dst="${dst%.$i}.$(( i + 1 ))"
+            dst="${src%.gz}"; dst="${dst%."$i"}.$(( i + 1 ))"
             [[ "$src" == *.gz ]] && dst="$dst.gz"
             assert_inside "$dir" "$dst"
             act "mv      ${src##*/}  ->  ${dst##*/}" -- mv -- "$src" "$dst"
@@ -359,5 +357,31 @@ rotate_target() {
     fi
     (( APPLY )) || printf '  (nothing was changed. re-run with --apply to act)\n'
 }
+
+# Rotations 1.1 additions
+holders_of() {
+    local target fd link pid
+    target="$(realpath -- "$1")" || return 0
+    shopt -s nullglob
+    for fd in /proc/[0-9]*/fd/*; do
+        link="$(readlink -- "$fd" 2>/dev/null)" || continue
+        [[ "$link" == "$target" ]] || continue
+        pid="${fd#/proc/}"; pid="${pid%%/fd/*}"
+        printf '%s %s\n' "$pid" "$(cat "/proc/$pid/comm" 2>/dev/null || printf '?')"
+    done | sort -u
+    shopt -u nullglob
+}
+
+warn_if_open() {
+    local log="$1" pid name base="${1##*/}"
+    while read -r pid name; do
+        [[ -n "$pid" ]] || continue
+        printf '  WARNING: %s is held open by pid %s (%s).\n' "$base" "$pid" "$name"
+        printf '           After rotation it will keep writing to the RENAMED file, and the\n'
+        printf '           new %s will stay empty until the process reopens it.\n' "$base"
+        printf '           Send SIGHUP after rotating, or use --copytruncate.\n'
+    done < <(holders_of "$log")
+}
+
 
 main "$@"
