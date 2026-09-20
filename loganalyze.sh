@@ -209,7 +209,7 @@ render_report() {
     render_header        "$label" "$facts"
     render_severity      "$facts"
     render_top_programs  "$facts" "$top"
-#    render_auth          "$facts" "$top"
+    render_auth          "$facts" "$top"
     render_histogram     "$facts"
     detect_burst         "$facts"
     detect_anomalies	  "$facts" "$ANOMALY_K"
