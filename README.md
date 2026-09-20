@@ -1,4 +1,4 @@
-# loganalyze
+# Log Analytics & Rotation Engine
 
 Log analysis and rotation engine in Bash + awk. OS assignment, Programming 1 (Type 4).
 
