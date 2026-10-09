@@ -107,6 +107,7 @@ main() {
 }
 
 
+# FEAT 6
 # place that knows about compression: - means stdin
 # *.gz get decompressed, everything else is just read
 # cat -- "$f" survives a file named -dashfile.log
@@ -177,6 +178,7 @@ render_histogram() {
         | awk -F'\t' -f "$AWK_DIR/common.awk" -f "$AWK_DIR/histogram.awk"
 }
 
+# FEAT 5 BURST DETECTION
 detect_burst() {
     local facts="$1"
     fact "$facts" HOUR | awk -F'\t' '
@@ -190,6 +192,7 @@ detect_burst() {
         }'
 }
 
+# FEAT 8 REPORT OUTPUT
 write_csv() {
     local facts="$1" out="$2"
     awk -F'\t' 'BEGIN { print "metric,key,subkey,value" }
@@ -204,6 +207,7 @@ write_csv() {
     printf '\nCSV written to %s\n' "$out"
 }
 
+# FEAT 8 REPORT OUTPUT
 render_report() {
     local label="$1" facts="$2" top="$3" bytes="${4:-0}" dir="${5:-}"
     render_header        "$label" "$facts"
@@ -227,6 +231,7 @@ render_auth() {
       	| awk -F'\t' -v n="$top" 'NR <= n { printf "%-18s %9d %12d %12s %11s\n", $1, $2, $3, $4, $5 }'
 }
 
+# FEAT 6 PART 2
 # Log discovery additions
 discover_logs() {
 	local dir="$1"
@@ -261,6 +266,7 @@ analyze_targets() {
         render_report "$f" "$TMP_DIR/facts.$i" "$top" "$bytes" "$dir"
     done
 
+# FEAT 6 PART 3
     if (( ${#sources[@]} > 1 )); then
         for f in "${sources[@]}"; do emit_lines "$f"; done | sanitize \
             | awk -f "$AWK_DIR/common.awk" -f "$AWK_DIR/analyze.awk" > "$TMP_DIR/facts.all"
@@ -303,6 +309,8 @@ act() {
     fi
 }
 
+
+# FEAT 7 ROTATION ENGINE
 rotate_one() {
     local log="$1" keep="$2" compress="$3" copytrunc="$4" max_size="$5"
     local dir base mode owner size i src dst
@@ -327,7 +335,7 @@ rotate_one() {
             act "rm      ${dst##*/}  (beyond --keep $keep)" -- rm -f -- "$dst"
         done
     done
-
+ 
     for (( i = keep - 1; i >= 2; i-- )); do
         for src in "$dir/$base.$i" "$dir/$base.$i.gz"; do
             [[ -e "$src" ]] || continue
