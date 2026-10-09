@@ -14,6 +14,7 @@ function rep(c, n, s) {
 	while (n-- > 0) s = s c
 	return s
 }
+# FEAT 2
 
 function severity(m , l) {
 	l = tolower(m)

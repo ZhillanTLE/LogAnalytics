@@ -2,6 +2,8 @@
 
 BEGIN { OFS = "\t" }
 
+# FEAT 1
+
 { total++ }
 
 # Anything that is not "Mon [D]D HH:MM:SS " is not a syslog record.
@@ -29,6 +31,7 @@ BEGIN { OFS = "\t" }
 	msg = ""
 	for (i =6; i <= NF; i++) msg = msg (i>6? " " : "") $i
 
+# FEAT 3 AGGREGATION AND TOP-N
 	sev = severity(msg)
 	sev_count[sev]++
 	prog_total[prog]++
@@ -37,6 +40,8 @@ BEGIN { OFS = "\t" }
 		prog_err[prog]++
 		hour_err[hour]++
 	}
+
+# FEAT 4 PATTERN EXTRACTION 
 	if (msg ~ /Failed password|Invalid user|authentication failure|Failed publickey/){
 		ip = auth_ip(msg)
 		if (ip != ""){
